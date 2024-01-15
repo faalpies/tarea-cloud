@@ -19,5 +19,4 @@ services:
     build: ./train-model
     volumes:
       - './train-model/train.py:/app/train.py'
-      - './backend/models/:/app/models/'
       - './images/:/app/images/'
