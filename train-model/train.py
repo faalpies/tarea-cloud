@@ -101,6 +101,6 @@ mse = round(mean_squared_error(y_test, y_pred), 2)
 print(f"Error cuadrático medio (MSE): {mse}")
 
 
-dump(svm_model, "models/modelo_1.joblib")
+dump(svm_model, "models/modelo.joblib")
 dump(scaler, "models/scaler.joblib")
 print(f"Modelo exportado en ", "models/" + "modelo.joblib")
