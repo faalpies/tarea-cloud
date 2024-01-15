@@ -6,7 +6,6 @@ services:
     ports:
       - "8051:5000"
     volumes:
-      - './models/:/app/models/'
       - './frontend/image:/app/image'
   frontend:
     image: nginx
@@ -20,5 +19,5 @@ services:
     build: ./train-model
     volumes:
       - './train-model/train.py:/app/train.py'
-      - './models/:/app/models/'
+      - './backend/models/:/app/models/'
       - './images/:/app/images/'
