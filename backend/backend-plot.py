@@ -15,7 +15,7 @@ import os
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/": {"origins": ""}})
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg"}
 
