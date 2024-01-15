@@ -71,7 +71,7 @@ def imagen_a_dataframe_y_vuelta(ruta_imagen, ruta_salida_tiff):
         df = pd.DataFrame(pixels, columns=["band_1", "band_2", "band_3"])
 
     scaler = load("models/scaler.joblib")
-    svm_model = load("models/modelo.joblib")
+    svm_model = load("models/modelo_1.joblib")
 
     X_test_scaled = scaler.transform(df)
 
