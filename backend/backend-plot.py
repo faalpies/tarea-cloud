@@ -19,7 +19,6 @@ CORS(app, resources={r"/": {"origins": ""}})
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg"}
 
-
 def marcar_bordes_lagos_y_mostrar_rgb_con_bordes(raster_path, tamano_minimo=100):
     # Leer el archivo raster
     with rasterio.open(raster_path) as src:
@@ -71,8 +70,8 @@ def imagen_a_dataframe_y_vuelta(ruta_imagen, ruta_salida_tiff):
         pixels = imagen_array.reshape(-1, 3)
         df = pd.DataFrame(pixels, columns=["band_1", "band_2", "band_3"])
 
-    scaler = load("scaler.joblib")
-    svm_model = load("modelo.joblib")
+    scaler = load("models/scaler.joblib")
+    svm_model = load("models/modelo.joblib")
 
     X_test_scaled = scaler.transform(df)
 
@@ -157,5 +156,5 @@ def make_plot():
         return jsonify({"res": False}), 400
 
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")

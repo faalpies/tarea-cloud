@@ -102,4 +102,5 @@ print(f"Error cuadrático medio (MSE): {mse}")
 
 
 dump(svm_model, "models/modelo.joblib")
+dump(scaler, "models/scaler.joblib")
 print(f"Modelo exportado en ", "models/" + "modelo.joblib")

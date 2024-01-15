@@ -19,7 +19,6 @@ RUN pip install GDAL==$(gdal-config --version) --global-option=build_ext --globa
 
 RUN pip install --no-cache-dir -r librerias.txt
 
-
 EXPOSE 5000
 
 CMD ["python", "backend-plot.py"]
