@@ -19,6 +19,9 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg"}
 
+scaler = load("models/scaler.joblib")
+svm_model = load("models/modelo.joblib")
+
 def marcar_bordes_lagos_y_mostrar_rgb_con_bordes(raster_path, tamano_minimo=100):
     # Leer el archivo raster
     with rasterio.open(raster_path) as src:
@@ -68,10 +71,7 @@ def imagen_a_dataframe_y_vuelta(ruta_imagen, ruta_salida_tiff):
     with Image.open(ruta_imagen) as img:
         imagen_array = np.array(img)
         pixels = imagen_array.reshape(-1, 3)
-        df = pd.DataFrame(pixels, columns=["band_1", "band_2", "band_3"])
-
-    scaler = load("models/scaler.joblib")
-    svm_model = load("models/modelo.joblib")
+        df = pd.DataFrame(pixels, columns=["band_1", "band_2", "band_3"])  
 
     X_test_scaled = scaler.transform(df)
 
