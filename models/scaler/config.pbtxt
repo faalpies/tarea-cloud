@@ -1,0 +1,24 @@
+name: "scaler"
+platform: "onnxruntime_onnx"
+default_model_filename: "scaler.onnx"
+max_batch_size: 0
+
+input [
+  {
+    name: "float_input"
+    data_type: TYPE_FP32
+    dims: [ -1, 3 ]
+  }
+]
+output [
+  {
+    name: "variable"
+    data_type: TYPE_FP32
+    dims: [ -1, 3 ]
+  }
+]
+instance_group [
+  {
+    kind: KIND_CPU
+  }
+]

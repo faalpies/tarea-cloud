@@ -6,7 +6,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error
 import numpy as np
-from joblib import dump
+import skl2onnx
+from skl2onnx import convert_sklearn
+from skl2onnx.common.data_types import FloatTensorType
+from skl2onnx import to_onnx
 
 
 def raster_to_dataframe(raster_path):
@@ -87,6 +90,14 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
+scaler_onnx = to_onnx(scaler, initial_types=[('float_input', FloatTensorType([None, X_train.shape[1]]))])
+
+scaler_model_name = "models/scaler/1/scaler.onnx"
+with open(scaler_model_name, "wb") as f:
+    f.write(scaler_onnx.SerializeToString())
+
+print(f"Scaler exportado a ONNX en {scaler_model_name}")
+
 # Entrenar el modelo SVM
 svm_model = SVR()
 
@@ -95,12 +106,17 @@ svm_model.fit(X_train_scaled, y_train)
 
 # Predecir y evaluar
 print("Evaluando...")
-
 y_pred = svm_model.predict(X_test_scaled)
 mse = round(mean_squared_error(y_test, y_pred), 2)
 print(f"Error cuadrático medio (MSE): {mse}")
 
+# Convertir a ONNX
+initial_type = [("float_input", FloatTensorType([None, X_train_scaled.shape[1]]))]
+onnx_model = convert_sklearn(svm_model, initial_types=initial_type)
 
-dump(svm_model, "models/modelo.joblib")
-dump(scaler, "models/scaler.joblib")
-print(f"Modelo exportado en ", "models/" + "modelo.joblib")
+# Exportar el modelo ONNX
+onnx_model_name = "models/modelo_svr/1/" + "modelo_svr.onnx"
+with open(onnx_model_name, "wb") as f:
+    f.write(onnx_model.SerializeToString())
+
+print(f"Modelo exportado a ONNX en {onnx_model_name}")

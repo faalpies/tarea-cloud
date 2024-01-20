@@ -2,8 +2,11 @@ flask
 flask-cors
 Pillow
 scikit-learn
-pandas
+pandas 
 scikit-image
 matplotlib
 scipy
 rasterio
+tritonclient
+gevent
+geventhttpclient

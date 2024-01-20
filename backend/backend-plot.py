@@ -12,15 +12,28 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
+from tritonclient.utils import *
+import tritonclient.http as httpclient
+import json
 
+TRITON_SERVER_URL = "triton:8000"
+MODEL_NAME = "modelo_svr" 
+SCALER_NAME = "scaler"
+
+client = httpclient.InferenceServerClient(url=TRITON_SERVER_URL)
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg"}
 
-scaler = load("models/scaler.joblib")
-svm_model = load("models/modelo.joblib")
+def inferencia_triton(cliente, nombre_modelo, datos_entrada):
+    entrada = httpclient.InferInput('float_input', datos_entrada.shape, 'FP32')
+    entrada.set_data_from_numpy(datos_entrada)
+
+    salida = httpclient.InferRequestedOutput('variable')
+    respuesta = cliente.infer(nombre_modelo, [entrada], request_id='0', outputs=[salida])
+    return respuesta.as_numpy('variable')
 
 def marcar_bordes_lagos_y_mostrar_rgb_con_bordes(raster_path, tamano_minimo=100):
     # Leer el archivo raster
@@ -73,10 +86,11 @@ def imagen_a_dataframe_y_vuelta(ruta_imagen, ruta_salida_tiff):
         pixels = imagen_array.reshape(-1, 3)
         df = pd.DataFrame(pixels, columns=["band_1", "band_2", "band_3"])  
 
-    X_test_scaled = scaler.transform(df)
+    datos_entrada = df.to_numpy().astype(np.float32)
+    datos_escalados = inferencia_triton(client, SCALER_NAME, datos_entrada)
 
     # Agregar la nueva columna de suma de Rojo y Azul
-    df["band_5"] = svm_model.predict(X_test_scaled)
+    df["band_5"] = inferencia_triton(client, MODEL_NAME, datos_escalados)
 
     # Reconvertir el DataFrame en una imagen
     data_array = df.to_numpy()
@@ -123,10 +137,6 @@ def allowed_file(filename):
 
 @app.route("/make-plot", methods=["POST"])
 def make_plot():
-    ruta_modelo = "models/modelo.joblib"
-    if "file" not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
     file = request.files["file"]
 
     if file.filename == "":
@@ -148,7 +158,7 @@ def make_plot():
         )
 
         # Procesar la imagen y guardarla en formato TIFF
-        raster = imagen_a_dataframe_y_vuelta(img_red_ruta, ruta_modelo)
+        raster = imagen_a_dataframe_y_vuelta(img_red_ruta, "image/bordes_lagos.png")
         marcar_bordes_lagos_y_mostrar_rgb_con_bordes(raster)
 
         return jsonify({"res": True})

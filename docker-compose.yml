@@ -7,6 +7,8 @@ services:
       - "8051:5000"
     volumes:
       - './frontend/image:/app/image'
+      - './backend/:/app/'
+
   frontend:
     image: nginx
     ports:
@@ -15,8 +17,20 @@ services:
       - ./frontend/:/usr/share/nginx/html:ro
     depends_on:
       - backend
+
   train-model:
     build: ./train-model
     volumes:
       - './train-model/train.py:/app/train.py'
       - './images/:/app/images/'
+      - './models/:/app/models/'
+
+  triton:
+    image: nvcr.io/nvidia/tritonserver:23.12-py3
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - './models:/models'
+    command: ["tritonserver", "--model-repository=/models", "--log-verbose=1"]

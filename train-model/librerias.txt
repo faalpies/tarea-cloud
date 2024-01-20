@@ -1,9 +1,5 @@
-flask
-flask-cors
-Pillow
 scikit-learn
 pandas
 scikit-image
-matplotlib
-scipy
 rasterio
+skl2onnx
